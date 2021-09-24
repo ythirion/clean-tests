@@ -9,14 +9,11 @@ object ProductType extends Enumeration {
   val Book, Bluray = Value
 }
 
-final class Store(
+class Store(
     private val inventory: Map[ProductType, Int] = Map.empty[ProductType, Int]
 ) {
-  def removeInventory(product: ProductType, quantity: Int): Try[Store] = {
-    if (!hasEnoughInventory(product, quantity))
-      Failure(new IllegalArgumentException("Not enough inventory"))
-    else Success(updateStore(product, inventory(product) - quantity))
-  }
+  def removeInventory(product: ProductType, quantity: Int): Store =
+    updateStore(product, inventory(product) - quantity)
 
   def hasEnoughInventory(product: ProductType, quantity: Int): Boolean =
     getInventoryFor(product) >= quantity
@@ -34,8 +31,10 @@ final class Store(
 object CustomerService {
   def purchase(
       store: Store,
-      product: ProductType.Value,
+      product: ProductType,
       quantity: Int
   ): Try[Store] =
-    store.removeInventory(product, quantity)
+    if (!store.hasEnoughInventory(product, quantity))
+      Failure(new IllegalArgumentException("Not enough inventory"))
+    else Success(store.removeInventory(product, quantity))
 }
