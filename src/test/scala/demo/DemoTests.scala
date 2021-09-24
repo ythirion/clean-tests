@@ -1,3 +1,5 @@
+package demo
+
 import org.scalatest.flatspec.AnyFlatSpec
 
 class DemoTests extends AnyFlatSpec {
