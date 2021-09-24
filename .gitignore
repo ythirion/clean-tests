@@ -1,0 +1,37 @@
+*.DS_Store
+*.swp
+*~
+*.class
+*.tasty
+target/
+logs/
+.bsp/
+.bloop
+.dotty-ide-artifact
+.dotty-ide.json
+.idea
+.metals
+.vscode
+*.csv
+*.dat
+*.ipr
+*.iws
+
+*.log
+
+# sbt specific
+.cache/
+.history/
+.lib/
+dist/*
+lib_managed/
+src_managed/
+project/boot/
+project/plugins/project/
+
+# Scala-IDE specific
+.scala_dependencies
+.worksheet
+
+
+
