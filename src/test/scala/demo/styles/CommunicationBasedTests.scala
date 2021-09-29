@@ -7,12 +7,14 @@ import scala.util.Try
 
 class CommunicationBasedTests extends AnyFlatSpec with MockFactory {
   it should "send greetings email" in {
-    val emailGatewayMock = stub[EmailGateway]
-    val sut = new Controller(emailGatewayMock)
+    val emailGatewayStub = stub[EmailGateway]
+    // Substitute collaborators with Test Double
+    val sut = new Controller(emailGatewayStub)
 
     sut.greetUser("john.doe@email.com")
 
-    (emailGatewayMock.sendGreetingsEmail _).verify("john.doe@email.com").once()
+    // Verify that the SUT calls those collaborators correctly
+    (emailGatewayStub.sendGreetingsEmail _).verify("john.doe@email.com").once()
   }
 
   trait EmailGateway {
