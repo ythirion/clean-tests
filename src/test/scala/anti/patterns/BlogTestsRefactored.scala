@@ -16,31 +16,34 @@ class BlogTestsRefactored extends AnyFlatSpec with EitherValues {
   private val author = "Pablo Escobar"
 
   it should "add a new comment in the Article including given text / author" in {
-    val result = article.addComment(text, author)
-
-    assert(result.isRight)
-
-    val addedComment = result.value.comments.head
-    assert(addedComment.text == text)
-    assert(addedComment.author == author)
-    assert(addedComment.creationDate.isEqual(LocalDate.now))
+    val updatedArticle = article.addComment(text, author)
+    assert(updatedArticle.isRight)
+    assertAddedComment(updatedArticle.value, text, author)
   }
 
   it should "add a new comment in an Article containing existingh comments" in {
     val newText = "Finibus Bonorum et Malorum"
     val newAuthor = "Al Capone"
 
-    val result = article
+    val updatedArticle = article
       .addComment(text, author)
       .map(_.addComment(newText, newAuthor))
       .flatten
 
-    assert(result.isRight)
-    assert(result.value.comments.size == 2)
+    assert(updatedArticle.isRight)
+    assert(updatedArticle.value.comments.size == 2)
 
-    val addedComment = result.value.comments.head
-    assert(addedComment.text == newText)
-    assert(addedComment.author == newAuthor)
+    assertAddedComment(updatedArticle.value, newText, newAuthor)
+  }
+
+  private def assertAddedComment(
+      article: Article,
+      expectedText: String,
+      expectedAuthor: String
+  ): Unit = {
+    val addedComment = article.comments.head
+    assert(addedComment.text == expectedText)
+    assert(addedComment.author == expectedAuthor)
     assert(addedComment.creationDate.isEqual(LocalDate.now))
   }
 
