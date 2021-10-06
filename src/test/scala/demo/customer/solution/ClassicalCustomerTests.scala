@@ -1,5 +1,6 @@
-package demo.customer
+package demo.customer.solution
 
+import demo.customer.{CustomerService, ProductType, Store}
 import org.scalatest.TryValues.convertTryToSuccessOrFailure
 import org.scalatest.flatspec.AnyFlatSpec
 

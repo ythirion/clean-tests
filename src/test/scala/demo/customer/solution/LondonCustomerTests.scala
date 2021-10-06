@@ -1,6 +1,7 @@
-package demo.customer
+package demo.customer.solution
 
 import demo.customer.ProductType.ProductType
+import demo.customer.{CustomerService, ProductType, Store}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.flatspec.AnyFlatSpec
 

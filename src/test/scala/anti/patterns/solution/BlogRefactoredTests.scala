@@ -21,7 +21,7 @@ class BlogRefactoredTests extends AnyFlatSpec with EitherValues {
     assertAddedComment(updatedArticle.value, text, author)
   }
 
-  it should "add a new comment in an Article containing existingh comments" in {
+  it should "add a new comment in an Article containing existing comments" in {
     val newText = "Finibus Bonorum et Malorum"
     val newAuthor = "Al Capone"
 
@@ -48,15 +48,15 @@ class BlogRefactoredTests extends AnyFlatSpec with EitherValues {
   }
 
   it should "return an error when adding existing comment" in {
-    val result = article
+    val updatedArticle = article
       .addComment(text, author)
       .map(_.addComment(text, author))
       .flatten
 
-    assert(result.isLeft)
-    assert(result.left.value.size == 1)
+    assert(updatedArticle.isLeft)
+    assert(updatedArticle.left.value.size == 1)
     assert(
-      result.left.value.head.description == "Comment already in the article"
+      updatedArticle.left.value.head.description == "Comment already in the article"
     )
   }
 }

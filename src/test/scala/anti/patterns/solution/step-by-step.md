@@ -155,7 +155,7 @@ class BlogTests extends AnyFlatSpec with EitherValues {
 ```
 
 * Remove duplication
-  * If you need to instanciate a lot of object, centralize it in TestDataBuilders
+  * If you need to instantiate a lot of object, centralize it in TestDataBuilders
     * If you change your models, it will be easier to maintain
 
 ```scala
