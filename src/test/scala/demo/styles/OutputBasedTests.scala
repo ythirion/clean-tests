@@ -1,5 +1,6 @@
 package demo.styles
 
+import demo.customer.{PriceEngine, Product}
 import org.scalatest.flatspec.AnyFlatSpec
 
 class OutputBasedTests extends AnyFlatSpec {
@@ -12,14 +13,5 @@ class OutputBasedTests extends AnyFlatSpec {
     val discount = PriceEngine.calculateDiscount(product1, product2)
 
     assert(0.02 == discount)
-  }
-
-  final case class Product(name: String)
-
-  object PriceEngine {
-    def calculateDiscount(products: Product*): Double = {
-      val discount = products.length * 0.01
-      Math.min(discount, 0.2)
-    }
   }
 }
