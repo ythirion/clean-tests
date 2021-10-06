@@ -1,4 +1,4 @@
-package anti.patterns
+package anti.patterns.solution
 
 import demo.blog.Article
 import org.scalatest.EitherValues
@@ -6,7 +6,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 
 import java.time.LocalDate
 
-class BlogTestsRefactored extends AnyFlatSpec with EitherValues {
+class BlogRefactoredTests extends AnyFlatSpec with EitherValues {
   private val article = new Article(
     "Lorem Ipsum",
     "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore"

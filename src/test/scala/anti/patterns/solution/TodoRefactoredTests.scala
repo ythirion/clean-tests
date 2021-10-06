@@ -1,4 +1,4 @@
-package anti.patterns
+package anti.patterns.solution
 
 import demo.todo.{ToDoService, Todo, TodoRepository}
 import org.scalamock.scalatest.MockFactory

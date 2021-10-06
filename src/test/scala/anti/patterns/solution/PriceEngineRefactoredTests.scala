@@ -1,4 +1,4 @@
-package anti.patterns
+package anti.patterns.solution
 
 import demo.customer.{PriceEngine, Product}
 import org.scalatest.flatspec.AnyFlatSpec
