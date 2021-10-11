@@ -3,7 +3,7 @@
 *~
 *.class
 *.tasty
-target/
+**/target/*
 logs/
 .bsp/
 .bloop
