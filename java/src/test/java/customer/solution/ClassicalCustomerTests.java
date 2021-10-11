@@ -23,5 +23,8 @@ class ClassicalCustomerTests {
     void it_should_fail_when_not_enough_inventory() {
         final var updatedStore = CustomerService.purchase(store, ProductType.Book, 11);
         assertThat(updatedStore.isFailure()).isTrue();
+        assertThat(updatedStore.getCause())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Not enough inventory");
     }
 }
