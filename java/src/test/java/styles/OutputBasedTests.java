@@ -1,11 +1,10 @@
 package styles;
 
-import lombok.AllArgsConstructor;
-import lombok.experimental.UtilityClass;
+import customer.PriceEngine;
+import customer.Product;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 
-import static java.lang.Math.min;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 public class OutputBasedTests {
@@ -19,18 +18,5 @@ public class OutputBasedTests {
         val discount = PriceEngine.calculateDiscount(product1, product2);
 
         assertThat(discount).isEqualTo(0.02);
-    }
-
-    @UtilityClass
-    public class PriceEngine {
-        public static Double calculateDiscount(Product... products) {
-            val discount = products.length * 0.01;
-            return min(discount, 0.2);
-        }
-    }
-
-    @AllArgsConstructor
-    class Product {
-        private final String name;
     }
 }
