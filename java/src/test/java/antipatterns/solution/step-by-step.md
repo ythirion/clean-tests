@@ -175,150 +175,190 @@ class BlogTests {
 ```
 
 * Remove duplication
-    * If you need to instantiate a lot of object, centralize it in TestDataBuilders
+    * If you need to instantiate a lot of object, centralize it in TestDataBuilders (Use Lombok Builder)
         * If you change your models, it will be easier to maintain
 
-```scala
-package anti.patterns
+```java
+class BlogRefactoredTests {
+    private Article article;
 
-import demo.blog.Article
-import org.scalatest.EitherValues
-import org.scalatest.flatspec.AnyFlatSpec
+    @BeforeEach
+    void init() {
+        article = new Article(
+                "Lorem Ipsum",
+                "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore"
+        );
+    }
 
-class BlogTestsRefactored extends AnyFlatSpec with EitherValues {
-  private val article = new Article(
-    "Lorem Ipsum",
-    "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore"
-  )
+    @Test
+    void it_should_return_a_Right_for_valid_comment() {
+        val result = article.addComment("Amazing article !!!", "Pablo Escobar");
 
-  it should "returns a Right for valid comment" in {
-    val result = article.addComment("Amazing article !!!", "Pablo Escobar")
+        assertThat(result.isRight()).isTrue();
+    }
 
-    assert(result.isRight)
-  }
+    @Test
+    void it_should_add_a_comment_with_the_given_text() {
+        val text = "Amazing article !!!";
+        val result = article.addComment(text, "Pablo Escobar");
 
-  it should "add a comment with the given text" in {
-    val text = "Amazing article !!!"
-    val result = article.addComment(text, "Pablo Escobar")
+        assertThat(result.get().getComments())
+                .hasSize(1)
+                .anyMatch(comment -> comment.getText().equals(text));
+    }
 
-    assert(result.value.comments.head.text == text)
-  }
+    @Test
+    void it_should_add_a_comment_with_the_given_author() {
+        val author = "Pablo Escobar";
+        val result = article.addComment("Amazing article !!!", author);
 
-  it should "add a comment with the given author" in {
-    val author = "Pablo Escobar"
-    val result = article.addComment("Amazing article !!!", author)
+        assertThat(result.get().getComments())
+                .hasSize(1)
+                .anyMatch(comment -> comment.getAuthor().equals(author));
+    }
 
-    assert(result.value.comments.head.author == author)
-  }
+    @Test
+    void it_should_add_a_comment_with_the_date_of_the_day() {
+        val result = article.addComment("Amazing article !!!", "Pablo Escobar");
+    }
 
-  it should "add a comment with the date of the day" in {
-    val author = "Pablo Escobar"
-    val result = article.addComment("Amazing article !!!", author)
-  }
+    @Test
+    void it_should_return_a_Left_when_adding_existing_comment() {
+        val result =
+                article.addComment("Amazing article !!!", "Pablo Escobar")
+                        .map(a -> a.addComment("Amazing article !!!", "Pablo Escobar"))
+                        .flatMap(r -> r);
 
-  it should "returns a Left when adding existing comment" in {
-    val result = article
-      .addComment("Amazing article !!!", "Pablo Escobar")
-      .map(_.addComment("Amazing article !!!", "Pablo Escobar"))
-      .flatten
-
-    assert(result.isLeft)
-  }
+        assertThat(result.isLeft()).isTrue();
+    }
 }
 ```
 
 * Each test should represent a behavior
     * Not data oriented
 
-```scala
-it should "returns a Right[Article] containing a new comment including given text / author" in {
-  val text = "Amazing article !!!"
-  val author = "Pablo Escobar"
+```java
+    @Test
+    void it_should_return_a_Right_Article_containing_a_new_comment_including_given_text_and_author() {
+        val text = "Amazing article !!!";
+        val author = "Pablo Escobar";
 
-  val result = article.addComment(text, author)
+        val result = article.addComment(text, author);
 
-  assert(result.isRight)
-  val addedComment = result.value.comments.head
-  assert(addedComment.text == text)
-  assert(addedComment.author == author)
-  assert(addedComment.creationDate.isEqual(LocalDate.now))
-}
+        assertThat(result.isRight()).isTrue();
+        assertThat(result.get().getComments())
+                .hasSize(1)
+                .anyMatch(comment -> comment.getText().equals(text) &&
+                        comment.getAuthor().equals(author) &&
+                        comment.getCreationDate().isEqual(LocalDate.now()));
+    }
 ```
 
 * Be careful with date
     * Non deterministic data
-    * Ideally pass handle it with a function
+    * Ideally inject a Clock function
+    * We can use `isCloseTo` from [AssertJ](https://joel-costigliola.github.io/assertj/assertj-core-news.html#assertj-core-3.7.0-isCloseTo) for better assertions
+```java
+    @Test
+    void it_should_return_a_Right_Article_containing_a_new_comment_including_given_text_and_author() {
+        val text = "Amazing article !!!";
+        val author = "Pablo Escobar";
 
-```scala
-class BlogTestsRefactored extends AnyFlatSpec with EitherValues {
-  private val article = new Article(
-    "Lorem Ipsum",
-    "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore"
-  )
+        val result = article.addComment(text, author);
 
-  private val text = "Amazing article !!!"
-  private val author = "Pablo Escobar"
+        assertThat(result.isRight()).isTrue();
+        assertComment(result.get().getComments().head(), text, author);
+    }
 
-  // Have more business oriented
-  it should "return a Right[Article] containing a new comment including given text / author" in {
-    val result = article.addComment(text, author)
+    private void assertComment(Comment comment,
+                               String expectedText,
+                               String expectedAuthor) {
+        assertThat(comment.getText()).isEqualTo(expectedText);
+        assertThat(comment.getAuthor()).isEqualTo(expectedAuthor);
+        assertThat(comment.getCreationDate()).isCloseTo(LocalDate.now(), within(1, ChronoUnit.SECONDS));
+    }
+```
+* Remove the 3 other tests
 
-    assert(result.isRight)
-    val addedComment = result.value.comments.head
-    assert(addedComment.text == text)
-    assert(addedComment.author == author)
-    assert(addedComment.creationDate.isEqual(LocalDate.now))
-  }
+```java
+class BlogRefactoredTests {
+    private Article article;
 
-  it should "return a Left when adding existing comment" in {
-    val result = article
-      .addComment(text, author)
-      .map(_.addComment(text, author))
-      .flatten
+    @BeforeEach
+    void init() {
+        article = new Article(
+                "Lorem Ipsum",
+                "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore"
+        );
+    }
 
-    assert(result.isLeft)
-  }
+    @Test
+    void it_should_return_a_Right_Article_containing_a_new_comment_including_given_text_and_author() {
+        val text = "Amazing article !!!";
+        val author = "Pablo Escobar";
+
+        val result = article.addComment(text, author);
+
+        assertThat(result.isRight()).isTrue();
+        assertComment(result.get().getComments().head(), text, author);
+    }
+
+    private void assertComment(Comment comment,
+                               String expectedText,
+                               String expectedAuthor) {
+        assertThat(comment.getText()).isEqualTo(expectedText);
+        assertThat(comment.getAuthor()).isEqualTo(expectedAuthor);
+        assertThat(comment.getCreationDate()).isCloseTo(LocalDate.now(), within(1, ChronoUnit.SECONDS));
+    }
+
+    @Test
+    void it_should_return_a_Left_when_adding_existing_comment() {
+        val result =
+                article.addComment("Amazing article !!!", "Pablo Escobar")
+                        .map(a -> a.addComment("Amazing article !!!", "Pablo Escobar"))
+                        .flatMap(r -> r);
+
+        assertThat(result.isLeft()).isTrue();
+    }
 }
 ```
 
 * Rename the test to remove implementation details
 
-```scala
-it should "add a new comment in the Article including given text / author" in {
-  val text = "Amazing article !!!"
-  val author = "Pablo Escobar"
+```java
+    @Test
+    void it_should_add_a_new_comment_in_the_article_including_given_text_and_author() {
+        val text = "Amazing article !!!";
+        val author = "Pablo Escobar";
 
-  val result = article.addComment(text, author)
+        val result = article.addComment(text, author);
 
-  assert(result.isRight)
-  val addedComment = result.value.comments.head
-  assert(addedComment.text == text)
-  assert(addedComment.author == author)
-  assert(addedComment.creationDate.isEqual(LocalDate.now))
-}
+        assertThat(result.isRight()).isTrue();
+        assertComment(result.get().getComments().head(), text, author);
+    }
 ```
 
 * Improve the error test case
     * Rename the test
     * Assert the validation error
 
-```scala
-it should "return an error when adding existing comment" in {
-  val result = article
-    .addComment(text, author)
-    .map(_.addComment(text, author))
-    .flatten
+```java
+    @Test
+    void it_should_return_an_error_when_adding_an_existing_comment() {
+        val result =
+                article.addComment(text, author)
+                        .map(a -> a.addComment(text, author))
+                        .flatMap(r -> r);
 
-  assert(result.isLeft)
-  assert(result.left.value.size == 1)
-  assert(
-    result.left.value.head.description == "Comment already in the article"
-  )
-}
+        assertThat(result.isLeft()).isTrue();
+        assertThat(result.getLeft())
+                .hasSize(1)
+                .allMatch(error -> error.getDescription().equals("Comment already in the article"));
+    }
 ```
 
 * Add missing test case
-    * What happens if we add a comment on an Article containing existing ones
+    * What happens if we add a comment on an Article containing existing ones ?
 
 ```scala
 it should "add a new comment in an Article containing existingh comments" in {
