@@ -31,6 +31,9 @@ class LondonCustomerTests {
     void it_should_fail_when_not_enough_inventory() {
         final var updatedStore = CustomerService.purchase(storeMock, ProductType.Book, 11);
         assertThat(updatedStore.isFailure()).isTrue();
+        assertThat(updatedStore.getCause())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Not enough inventory");
         verify(storeMock, never()).removeInventory(ProductType.Book, QUANTITY);
     }
 }
