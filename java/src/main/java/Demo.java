@@ -1,3 +1,5 @@
+package demo;
+
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
