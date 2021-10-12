@@ -11,7 +11,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class CommunicationBasedTests {
     @Test
-    void it_should_send_greeting_email() {
+    void greet_a_user_should_send_an_email_to_it() {
         final var email = "john.doe@email.com";
         final var emailGatewayMock = mock(EmailGateway.class);
         // Substitute collaborators with Test Double
