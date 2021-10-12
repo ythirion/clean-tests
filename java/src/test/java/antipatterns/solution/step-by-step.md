@@ -31,56 +31,58 @@ class PriceEngineRefactoredTests {
 
 ## TodoTests
 
-```scala
-class TodoTests extends AnyFlatSpec with MockFactory {
-  it should "call search on repository when searching given text" in {
-    val todoRepositoryStub = stub[TodoRepository]
-    val toDoService = new ToDoService(todoRepositoryStub)
-    val searchResults = List(
-      Todo("Create mural", "add code samples in mural"),
-      Todo("Add myths in mural", "add mythbusters from ppt in the board")
-    )
-    val searchedText = "mural"
+```java
+public class TodoTests {
+    @Test
+    void it_should_call_search_on_repository_with_the_given_text() {
+        val todoRepositoryMock = mock(TodoRepository.class);
+        val todoService = new TodoService(todoRepositoryMock);
 
-    (todoRepositoryStub.search _)
-      .when(searchedText)
-      .returns(searchResults)
+        val searchResults = List.of(
+                new Todo("Create miro", "add code samples in the board"),
+                new Todo("Add myths in miro", "add mythbusters from ppt in the board")
+        );
+        val searchedText = "miro";
 
-    // The Subject Under Test is a mock
-    val result = todoRepositoryStub.search(searchedText)
+        when(todoRepositoryMock.search(searchedText))
+                .thenReturn(searchResults);
 
-    // Here we assert that the call on our mock returns what we setup
-    // We test scalamock...
-    assert(result == searchResults)
-    (todoRepositoryStub.search _).verify(searchedText).once()
-  }
+        // The Subject Under Test is a mock
+        val result = todoRepositoryMock.search(searchedText);
+
+        // Here we assert that the call on our mock returns what we set up
+        // We test Mockito here...
+        assertThat(result).isEqualTo(searchResults);
+        verify(todoRepositoryMock, times(1)).search(searchedText);
+    }
 }
 ```
 
-* Use the true SUT
+* Use the true SUT : `Never use a Mock as a Subject Under Test`
 
-```scala
-class TodoRefactoredTests extends AnyFlatSpec with MockFactory {
-  it should "call search on repository when searching given text" in {
-    val todoRepositoryStub = stub[TodoRepository]
-    val toDoService = new ToDoService(todoRepositoryStub)
-    val searchResults = List(
-      Todo("Create mural", "add code samples in mural"),
-      Todo("Add myths in mural", "add mythbusters from ppt in the board")
-    )
-    val searchedText = "mural"
+```java
+public class TodoRefactoredTests {
+    @Test
+    void it_should_call_search_on_repository_with_the_given_text() {
+        val todoRepositoryMock = mock(TodoRepository.class);
+        val todoService = new TodoService(todoRepositoryMock);
 
-    (todoRepositoryStub.search _)
-      .when(searchedText)
-      .returns(searchResults)
+        val searchResults = List.of(
+                new Todo("Create miro", "add code samples in the board"),
+                new Todo("Add myths in miro", "add mythbusters from ppt in the board")
+        );
+        val searchedText = "miro";
 
-    // The SUT is the TodoService that (in this simple version) will only delegates call to Repository
-    // Would have more responsibility in real life (authorization, quotas, filtering, ...)
-    val result = toDoService.search(searchedText)
+        when(todoRepositoryMock.search(searchedText))
+                .thenReturn(searchResults);
 
-    (todoRepositoryStub.search _).verify(searchedText).once()
-    assert(result == searchResults)
-  }
+        // The SUT is the TodoService that (in this simple version) will only delegates call to Repository
+        // Would have more responsibility in real life (authorization, quotas, filtering, ...)
+        val result = todoService.search(searchedText);
+
+        assertThat(result).isEqualTo(searchResults);
+        verify(todoRepositoryMock, times(1)).search(searchedText);
+    }
 }
 ```
 
