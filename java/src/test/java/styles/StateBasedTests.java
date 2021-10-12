@@ -10,7 +10,7 @@ import java.util.List;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
-public class StateBasedTests {
+class StateBasedTests {
     @Test
     void it_should_add_given_product_to_the_order() {
         val product = new Product("Free Guy");

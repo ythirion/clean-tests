@@ -10,7 +10,7 @@ import todo.TodoService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-public class TodoTests {
+class TodoTests {
     @Test
     void it_should_call_search_on_repository_with_the_given_text() {
         val todoRepositoryMock = mock(TodoRepository.class);

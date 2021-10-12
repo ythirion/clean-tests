@@ -7,7 +7,7 @@ import static java.lang.Math.min;
 
 @UtilityClass
 public class PriceEngine {
-    public static Double calculateDiscount(Product... products) {
+    public static double calculateDiscount(Product... products) {
         val discount = products.length * 0.01;
         return min(discount, 0.2);
     }

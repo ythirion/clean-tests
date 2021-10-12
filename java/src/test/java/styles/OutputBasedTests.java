@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-public class OutputBasedTests {
+class OutputBasedTests {
     @Test
     void discount_of_2_products_should_be_2_percent() {
         val product1 = new Product("Kaamelott");

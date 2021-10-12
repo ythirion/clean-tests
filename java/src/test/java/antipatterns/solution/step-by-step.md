@@ -32,7 +32,7 @@ class PriceEngineRefactoredTests {
 ## TodoTests
 
 ```java
-public class TodoTests {
+class TodoTests {
     @Test
     void it_should_call_search_on_repository_with_the_given_text() {
         val todoRepositoryMock = mock(TodoRepository.class);
@@ -61,7 +61,7 @@ public class TodoTests {
 * Use the true SUT : `Never use a Mock as a Subject Under Test`
 
 ```java
-public class TodoRefactoredTests {
+class TodoRefactoredTests {
     @Test
     void it_should_call_search_on_repository_with_the_given_text() {
         val todoRepositoryMock = mock(TodoRepository.class);
