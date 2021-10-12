@@ -257,7 +257,7 @@ class BlogRefactoredTests {
 * Be careful with date
     * Non deterministic data
     * Ideally inject a Clock function
-    * We can use `isCloseTo` from [AssertJ](https://joel-costigliola.github.io/assertj/assertj-core-news.html#assertj-core-3.7.0-isCloseTo) for better assertions
+    * We can use `isBeforeOrEqualTo` from AssertJ
 ```java
     @Test
     void it_should_return_a_Right_Article_containing_a_new_comment_including_given_text_and_author() {
@@ -275,7 +275,7 @@ class BlogRefactoredTests {
                                String expectedAuthor) {
         assertThat(comment.getText()).isEqualTo(expectedText);
         assertThat(comment.getAuthor()).isEqualTo(expectedAuthor);
-        assertThat(comment.getCreationDate()).isCloseTo(LocalDate.now(), within(1, ChronoUnit.SECONDS));
+        assertThat(comment.getCreationDate()).isBeforeOrEqualTo(LocalDate.now());
     }
 ```
 * Remove the 3 other tests
@@ -308,7 +308,7 @@ class BlogRefactoredTests {
                                String expectedAuthor) {
         assertThat(comment.getText()).isEqualTo(expectedText);
         assertThat(comment.getAuthor()).isEqualTo(expectedAuthor);
-        assertThat(comment.getCreationDate()).isCloseTo(LocalDate.now(), within(1, ChronoUnit.SECONDS));
+        assertThat(comment.getCreationDate()).isBeforeOrEqualTo(LocalDate.now());
     }
 
     @Test
@@ -360,124 +360,148 @@ class BlogRefactoredTests {
 * Add missing test case
     * What happens if we add a comment on an Article containing existing ones ?
 
-```scala
-it should "add a new comment in an Article containing existingh comments" in {
-  val newText = "Finibus Bonorum et Malorum"
-  val newAuthor = "Al Capone"
+```java
+    @Test
+    void it_should_add_a_new_comment_in_an_article_containing_existing_ones() {
+        val newText = "Finibus Bonorum et Malorum";
+        val newAuthor = "Al Capone";
 
-  val result = article
-    .addComment(text, author)
-    .map(_.addComment(newText, newAuthor))
-    .flatten
+        val result = article.addComment(text, author)
+                .map(a -> a.addComment(newText, newAuthor))
+                .flatMap(r -> r);
 
-  assert(result.isRight)
-  assert(result.value.comments.size == 2)
-
-  val addedComment = result.value.comments.head
-  assert(addedComment.text == newText)
-  assert(addedComment.author == newAuthor)
-  assert(addedComment.creationDate.isEqual(LocalDate.now))
-}
+        assertThat(result.isRight()).isTrue();
+        assertThat(result.get().getComments()).hasSize(2);
+        assertComment(result.get().getComments().last(), newText, newAuthor);
+    }
 ```
 
 * Could we improve our tests again ?
 
-```scala
-package anti.patterns
+```java
+class BlogRefactoredTests {
+    private final String text = "Amazing article !!!";
+    private final String author = "Pablo Escobar";
+    private Article article;
 
-import demo.blog.Article
-import org.scalatest.EitherValues
-import org.scalatest.flatspec.AnyFlatSpec
+    private static void assertComment(Comment comment,
+                                      String expectedText,
+                                      String expectedAuthor) {
+        assertThat(comment.getText()).isEqualTo(expectedText);
+        assertThat(comment.getAuthor()).isEqualTo(expectedAuthor);
+        assertThat(comment.getCreationDate()).isBeforeOrEqualTo(LocalDate.now());
+    }
 
-import java.time.LocalDate
+    @BeforeEach
+    void init() {
+        article = new Article(
+                "Lorem Ipsum",
+                "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore"
+        );
+    }
 
-class BlogTestsRefactored extends AnyFlatSpec with EitherValues {
-  private val article = new Article(
-    "Lorem Ipsum",
-    "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore"
-  )
+    @Test
+    void it_should_add_a_new_comment_in_the_article_including_given_text_and_author() {
+        val result = article.addComment(text, author);
 
-  private val text = "Amazing article !!!"
-  private val author = "Pablo Escobar"
+        assertThat(result.isRight()).isTrue();
+        assertComment(result.get().getComments().head(), text, author);
+    }
 
-  it should "add a new comment in the Article including given text / author" in {
-    val result = article.addComment(text, author)
+    @Test
+    void it_should_add_a_new_comment_in_an_article_containing_existing_ones() {
+        val newText = "Finibus Bonorum et Malorum";
+        val newAuthor = "Al Capone";
 
-    assert(result.isRight)
+        val result = article.addComment(text, author)
+                .map(a -> a.addComment(newText, newAuthor))
+                .flatMap(r -> r);
 
-    val addedComment = result.value.comments.head
-    assert(addedComment.text == text)
-    assert(addedComment.author == author)
-    assert(addedComment.creationDate.isEqual(LocalDate.now))
-  }
+        assertThat(result.isRight()).isTrue();
+        assertThat(result.get().getComments()).hasSize(2);
+        assertComment(result.get().getComments().last(), newText, newAuthor);
+    }
 
-  it should "add a new comment in an Article containing existingh comments" in {
-    val newText = "Finibus Bonorum et Malorum"
-    val newAuthor = "Al Capone"
-
-    val result = article
-      .addComment(text, author)
-      .map(_.addComment(newText, newAuthor))
-      .flatten
-
-    assert(result.isRight)
-    assert(result.value.comments.size == 2)
-
-    val addedComment = result.value.comments.head
-    assert(addedComment.text == newText)
-    assert(addedComment.author == newAuthor)
-    assert(addedComment.creationDate.isEqual(LocalDate.now))
-  }
-
-  it should "return an error when adding existing comment" in {
-    val result = article
-      .addComment(text, author)
-      .map(_.addComment(text, author))
-      .flatten
-
-    assert(result.isLeft)
-    assert(result.left.value.size == 1)
-    assert(
-      result.left.value.head.description == "Comment already in the article"
-    )
-  }
+    @Test
+    void it_should_return_an_error_when_adding_an_existing_comment() {
+        val result = article.addComment(text, author)
+                    .map(a -> a.addComment(text, author))
+                    .flatMap(r -> r);
+        
+        assertThat(result.isLeft()).isTrue();
+        assertThat(result.getLeft())
+                .hasSize(1)
+                .allMatch(error -> error.getDescription().equals("Comment already in the article"));
+    }
 }
 ```
 
-* Centralize comment added assertions
-    * Rename result into a more business oriented name
+* Rename result into a more business oriented name like `updatedArticle` for instance
+* What else ?
+  * Split test cases between failure and success ?
+    * We can use @Nested classes to do so
+```java
+class Blog_should {
+    private final String text = "Amazing article !!!";
+    private final String author = "Pablo Escobar";
+    private Article article;
 
-```scala
-  it should "add a new comment in the Article including given text / author" in {
-  val updatedArticle = article.addComment(text, author)
-  assert(updatedArticle.isRight)
-  assertAddedComment(updatedArticle.value, text, author)
-}
+    private static void assertComment(Comment comment,
+                                      String expectedText,
+                                      String expectedAuthor) {
+        assertThat(comment.getText()).isEqualTo(expectedText);
+        assertThat(comment.getAuthor()).isEqualTo(expectedAuthor);
+        assertThat(comment.getCreationDate()).isBeforeOrEqualTo(LocalDate.now());
+    }
 
-it should "add a new comment in an Article containing existingh comments" in {
-  val newText = "Finibus Bonorum et Malorum"
-  val newAuthor = "Al Capone"
+    @BeforeEach
+    void init() {
+        article = new Article(
+                "Lorem Ipsum",
+                "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore"
+        );
+    }
 
-  val updatedArticle = article
-    .addComment(text, author)
-    .map(_.addComment(newText, newAuthor))
-    .flatten
+    @Nested
+    class add_a_new_comment {
+        @Test
+        void in_the_article_including_given_text_and_author() {
+            val updatedArticle = article.addComment(text, author);
 
-  assert(updatedArticle.isRight)
-  assert(updatedArticle.value.comments.size == 2)
+            assertThat(updatedArticle.isRight()).isTrue();
+            assertComment(updatedArticle.get().getComments().head(), text, author);
+        }
 
-  assertAddedComment(updatedArticle.value, newText, newAuthor)
-}
+        @Test
+        void in_an_article_containing_existing_ones() {
+            val newText = "Finibus Bonorum et Malorum";
+            val newAuthor = "Al Capone";
 
-private def assertAddedComment(
-                                article: Article,
-                                expectedText: String,
-                                expectedAuthor: String
-                              ): Unit = {
-  val addedComment = article.comments.head
-  assert(addedComment.text == expectedText)
-  assert(addedComment.author == expectedAuthor)
-  assert(addedComment.creationDate.isEqual(LocalDate.now))
+            val updatedArticle = article.addComment(text, author)
+                    .map(a -> a.addComment(newText, newAuthor))
+                    .flatMap(r -> r);
+
+            assertThat(updatedArticle.isRight()).isTrue();
+            assertThat(updatedArticle.get().getComments()).hasSize(2);
+            assertComment(updatedArticle.get().getComments().last(), newText, newAuthor);
+        }
+    }
+
+    @Nested
+    class return_an_error {
+        @Test
+        void when_adding_an_existing_comment() {
+            val updatedArticle = article.addComment(text, author)
+                    .map(a -> a.addComment(text, author))
+                    .flatMap(r -> r);
+
+            assertThat(updatedArticle.isLeft()).isTrue();
+            assertThat(updatedArticle.getLeft())
+                    .hasSize(1)
+                    .allMatch(error -> error.getDescription().equals("Comment already in the article"));
+        }
+    }
 }
 ```
-
+* It can help understand more quickly the reason of failure of a test
+![img.png](img.png)
