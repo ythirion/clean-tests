@@ -88,76 +88,90 @@ class TodoRefactoredTests {
 
 ## BlogTests
 
-```scala
-package anti.patterns
+```java
+package antipatterns;
 
-import demo.blog.Article
-import org.scalatest.EitherValues
-import org.scalatest.flatspec.AnyFlatSpec
+import blog.Article;
+import lombok.val;
+import org.junit.jupiter.api.Test;
 
-class BlogTests extends AnyFlatSpec with EitherValues {
-  // Have a business oriented name for the test
-  it should "return a Right for valid comment" in {
-    // Repeated in each test
-    val article = new Article(
-      "Lorem Ipsum",
-      "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore"
-    )
-    val result = article.addComment("Amazing article !!!", "Pablo Escobar")
+import static org.assertj.core.api.Assertions.assertThat;
 
-    assert(result.isRight)
-  }
+class BlogTests {
+    @Test
+        // Have a business oriented name for the test : what is a Right on a business perspective ?
+        // What is a valid comment ?
+    void it_should_return_a_Right_for_valid_comment() {
+        // Repeated in each test
+        val article = new Article(
+                "Lorem Ipsum",
+                "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore"
+        );
 
-  // 1 test to test each comment value...
-  // 4 tests instead of 1 to maintain
-  it should "add a comment with the given text" in {
-    val article = new Article(
-      "Lorem Ipsum",
-      "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore"
-    )
-    val text = "Amazing article !!!"
-    val result = article.addComment(text, "Pablo Escobar")
+        val result = article.addComment("Amazing article !!!", "Pablo Escobar");
 
-    assert(result.value.comments.head.text == text)
-  }
+        assertThat(result.isRight()).isTrue();
+    }
 
-  it should "add a comment with the given author" in {
-    val article = new Article(
-      "Lorem Ipsum",
-      "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore"
-    )
-    val author = "Pablo Escobar"
-    val result = article.addComment("Amazing article !!!", author)
+    @Test
+    void it_should_add_a_comment_with_the_given_text() {
+        val article = new Article(
+                "Lorem Ipsum",
+                "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore"
+        );
 
-    assert(result.value.comments.head.author == author)
-  }
+        val text = "Amazing article !!!";
+        val result = article.addComment(text, "Pablo Escobar");
 
-  it should "add a comment with the date of the day" in {
-    val article = new Article(
-      "Lorem Ipsum",
-      "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore"
-    )
-    val author = "Pablo Escobar"
-    val result = article.addComment("Amazing article !!!", author)
+        assertThat(result.get().getComments())
+                .hasSize(1)
+                .anyMatch(comment -> comment.getText().equals(text));
+    }
 
-    // Missing assertions
-  }
+    // 1 test to test each comment value...
+    // 4 tests instead of 1 to maintain
+    @Test
+    void it_should_add_a_comment_with_the_given_author() {
+        val article = new Article(
+                "Lorem Ipsum",
+                "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore"
+        );
 
-  it should "return a Left when adding existing comment" in {
-    val article = new Article(
-      "Lorem Ipsum",
-      "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore"
-    )
-    val result = article
-      .addComment("Amazing article !!!", "Pablo Escobar")
-      .map(_.addComment("Amazing article !!!", "Pablo Escobar"))
-      .flatten
+        val author = "Pablo Escobar";
+        val result = article.addComment("Amazing article !!!", author);
 
-    // What is inside the Left ?
-    assert(result.isLeft)
-  }
+        assertThat(result.get().getComments())
+                .hasSize(1)
+                .anyMatch(comment -> comment.getAuthor().equals(author));
+    }
+
+    @Test
+    void it_should_add_a_comment_with_the_date_of_the_day() {
+        val article = new Article(
+                "Lorem Ipsum",
+                "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore"
+        );
+
+        val result = article.addComment("Amazing article !!!", "Pablo Escobar");
+        // Missing assertions
+    }
+
+    @Test
+    void it_should_return_a_Left_when_adding_existing_comment() {
+        val article = new Article(
+                "Lorem Ipsum",
+                "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore"
+        );
+
+        val result =
+                article.addComment("Amazing article !!!", "Pablo Escobar")
+                        .map(a -> a.addComment("Amazing article !!!", "Pablo Escobar"))
+                        .flatMap(r -> r);
+
+        // What is inside the Left ?
+        assertThat(result.isLeft()).isTrue();
+    }
 }
-
 ```
 
 * Remove duplication
