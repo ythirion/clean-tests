@@ -10,12 +10,14 @@ class LondonCustomerTests extends AnyFlatSpec with MockFactory {
   val quantity = 6
   val storeStub: Store = stub[Store]
 
+  val customerService: CustomerService = new CustomerService()
+
   it should "purchase successfully when enough inventory" in {
     (storeStub.hasEnoughInventory _)
       .when(productType, quantity)
       .returns(true)
 
-    CustomerService.purchase(storeStub, productType, quantity)
+    customerService.purchase(storeStub, productType, quantity)
 
     (storeStub.removeInventory _).verify(productType, quantity).once()
   }
@@ -25,7 +27,7 @@ class LondonCustomerTests extends AnyFlatSpec with MockFactory {
       .when(productType, quantity)
       .returns(false)
 
-    CustomerService.purchase(storeStub, productType, quantity)
+    customerService.purchase(storeStub, productType, quantity)
 
     (storeStub.removeInventory _).verify(productType, quantity).never()
   }

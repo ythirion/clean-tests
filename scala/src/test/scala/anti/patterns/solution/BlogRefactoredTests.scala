@@ -1,22 +1,17 @@
 package anti.patterns.solution
 
-import demo.blog.Article
+import anti.patterns.solution.BlogRefactoredTests._
+import demo.blog.{Article, BlogService, Comment}
 import org.scalatest.EitherValues
 import org.scalatest.flatspec.AnyFlatSpec
 
 import java.time.LocalDate
 
 class BlogRefactoredTests extends AnyFlatSpec with EitherValues {
-  private val article = new Article(
-    "Lorem Ipsum",
-    "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore"
-  )
+  private val blogService = new BlogService()
 
-  private val text = "Amazing article !!!"
-  private val author = "Pablo Escobar"
-
-  it should "add a new comment in the Article including given text / author" in {
-    val updatedArticle = article.addComment(text, author)
+  it should "add a new comment in an empty Article including given text / author" in {
+    val updatedArticle = blogService.addComment(emptyArticle, text, author)
     assert(updatedArticle.isRight)
     assertAddedComment(updatedArticle.value, text, author)
   }
@@ -25,16 +20,35 @@ class BlogRefactoredTests extends AnyFlatSpec with EitherValues {
     val newText = "Finibus Bonorum et Malorum"
     val newAuthor = "Al Capone"
 
-    val updatedArticle = article
-      .addComment(text, author)
-      .map(_.addComment(newText, newAuthor))
-      .flatten
+    val updatedArticle = blogService.addComment(articleWith1Comment, newText, newAuthor)
 
     assert(updatedArticle.isRight)
     assert(updatedArticle.value.comments.size == 2)
-
     assertAddedComment(updatedArticle.value, newText, newAuthor)
   }
+
+  it should "return an error when adding existing comment" in {
+    val updatedArticle = blogService.addComment(articleWith1Comment, text, author)
+
+    assert(updatedArticle.isLeft)
+    assert(updatedArticle.left.value.size == 1)
+    assert(updatedArticle.left.value.head.description == "Comment already in the article")
+  }
+}
+
+object BlogRefactoredTests {
+  private val text = "Amazing article !!!"
+  private val author = "Pablo Escobar"
+
+  private val emptyArticle: Article = articleWithComments(List.empty[Comment])
+  private val articleWith1Comment: Article = articleWithComments(List(Comment(text, author, LocalDate.now())))
+
+  private def articleWithComments(comments: List[Comment]): Article =
+    Article(
+      "Lorem Ipsum",
+      "consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore",
+      comments
+    )
 
   private def assertAddedComment(
       article: Article,
@@ -45,18 +59,5 @@ class BlogRefactoredTests extends AnyFlatSpec with EitherValues {
     assert(addedComment.text == expectedText)
     assert(addedComment.author == expectedAuthor)
     assert(addedComment.creationDate.isEqual(LocalDate.now))
-  }
-
-  it should "return an error when adding existing comment" in {
-    val updatedArticle = article
-      .addComment(text, author)
-      .map(_.addComment(text, author))
-      .flatten
-
-    assert(updatedArticle.isLeft)
-    assert(updatedArticle.left.value.size == 1)
-    assert(
-      updatedArticle.left.value.head.description == "Comment already in the article"
-    )
   }
 }

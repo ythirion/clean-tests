@@ -9,9 +9,7 @@ object ProductType extends Enumeration {
   val Book, Bluray = Value
 }
 
-class Store(
-    private val inventory: Map[ProductType, Int] = Map.empty[ProductType, Int]
-) {
+class Store(private val inventory: Map[ProductType, Int] = Map.empty[ProductType, Int]) {
   def removeInventory(product: ProductType, quantity: Int): Store =
     updateStore(product, inventory(product) - quantity)
 
@@ -28,7 +26,7 @@ class Store(
     new Store(inventory + (product -> newQuantity))
 }
 
-object CustomerService {
+class CustomerService {
   def purchase(
       store: Store,
       product: ProductType,

@@ -6,9 +6,7 @@ trait TodoRepository {
   def search(text: String): List[Todo]
 }
 
-class ToDoService(
-    private val repository: TodoRepository
-) {
+class ToDoService(private val repository: TodoRepository) {
   def search(text: String): List[Todo] = {
     repository.search(text)
   }

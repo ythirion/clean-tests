@@ -8,13 +8,15 @@ class ClassicalCustomerTests extends AnyFlatSpec {
   val store: Store = new Store()
     .addInventory(ProductType.Book, 10)
 
+  val customerService: CustomerService = new CustomerService()
+
   it should "purchase successfully when enough inventory" in {
-    val updatedStore = CustomerService.purchase(store, ProductType.Book, 6)
+    val updatedStore = customerService.purchase(store, ProductType.Book, 6)
     assert(updatedStore.success.value.getInventoryFor(ProductType.Book) == 4)
   }
 
   it should "fail to purchase when not enough inventory" in {
-    val updatedStore = CustomerService.purchase(store, ProductType.Book, 11)
+    val updatedStore = customerService.purchase(store, ProductType.Book, 11)
     assert(updatedStore.isFailure)
   }
 }

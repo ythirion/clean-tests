@@ -2,31 +2,36 @@ package demo.blog
 
 import java.time.LocalDate
 
-case class Comment(text: String, author: String, creationDate: LocalDate)
+final case class Comment(text: String, author: String, creationDate: LocalDate)
 
-case class ValidationError(description: String)
+final case class ValidationError(description: String)
 
-final class Article(
-    val name: String,
-    val content: String,
-    val comments: List[Comment] = List.empty[Comment]
-) {
+final case class Article(
+    name: String,
+    content: String,
+    comments: List[Comment] = List.empty[Comment]
+)
+
+class BlogService {
   def addComment(
+      article: Article,
       text: String,
       author: String
   ): Either[List[ValidationError], Article] = {
-    addComment(text, author, LocalDate.now)
+    addComment(article, text, author, LocalDate.now)
   }
 
   private def addComment(
+      article: Article,
       text: String,
       author: String,
       creationDate: LocalDate
   ): Either[List[ValidationError], Article] = {
     val comment = Comment(text, author, creationDate)
 
-    if (comments.contains(comment))
+    if (article.comments.contains(comment))
       Left(List(ValidationError("Comment already in the article")))
-    else Right(new Article(name, content, comment :: comments))
+    else
+      Right(Article(article.name, article.content, comment :: article.comments))
   }
 }
