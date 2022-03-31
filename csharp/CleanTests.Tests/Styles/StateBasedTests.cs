@@ -15,6 +15,7 @@ public class StateBasedTests
 
         sut.Add(product);
 
+        // Verify the state
         sut.Products
             .Should()
             .HaveCount(1)

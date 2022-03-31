@@ -29,6 +29,6 @@ public class TodoTests
         var results = todoRepositoryMock.Object.Search(searchedText);
 
         results.Should().BeEquivalentTo(searchResults);
-        todoRepositoryMock.Verify(repo => repo.Search(searchedText), Times.AtMostOnce());
+        todoRepositoryMock.Verify(repo => repo.Search(searchedText), Times.Once);
     }
 }
