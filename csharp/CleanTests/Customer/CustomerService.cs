@@ -5,7 +5,7 @@ namespace CleanTests.Customer;
 public static class CustomerService
 {
     public static Try<Store> Purchase(
-        Store store,
+        IStore store,
         ProductType product,
         int quantity)
         => () => !store.HasEnoughInventory(product, quantity)
