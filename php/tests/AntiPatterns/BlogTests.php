@@ -70,8 +70,6 @@ class BlogTests extends TestCase
         $article->addComment("Amazing article !!!", "Pablo Escobar");
         $result = $article->addComment("Amazing article !!!", "Pablo Escobar");
 
-        assertCount(1, $article->getComments());
         assertCount(1, $result);
-        assertEquals("Comment already in the article", $result[0]->getDescription());
     }
 }

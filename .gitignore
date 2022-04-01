@@ -42,3 +42,4 @@ obj/
 # php
 *.lock
 *.cache
+vendor/
