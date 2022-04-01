@@ -2,8 +2,8 @@
 
 namespace Styles;
 
-use Com\CleanTests\Styles\Controller;
-use Com\CleanTests\Styles\EmailGateway;
+use Com\CleanTests\Styles\CommunicationBased\Controller;
+use Com\CleanTests\Styles\CommunicationBased\EmailGateway;
 use Mockery;
 use PHPUnit\Framework\TestCase;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Com\CleanTests\Styles;
+namespace Com\CleanTests\Styles\CommunicationBased;
 
 final class Controller
 {
