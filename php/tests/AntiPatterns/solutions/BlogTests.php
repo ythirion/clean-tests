@@ -1,6 +1,6 @@
 <?php
 
-namespace AntiPatterns\solutions;
+namespace AntiPatterns\solutions\solutions;
 
 use Com\CleanTests\Blog\Article;
 use Com\CleanTests\Blog\Comment;
