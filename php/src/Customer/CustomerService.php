@@ -2,7 +2,7 @@
 
 namespace Com\CleanTests\Customer;
 
-use http\Exception\InvalidArgumentException;
+use InvalidArgumentException;
 
 class CustomerService
 {

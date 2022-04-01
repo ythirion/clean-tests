@@ -3,7 +3,7 @@
 use Com\CleanTests\Demo;
 use PHPUnit\Framework\TestCase;
 
-final class DemoTest extends TestCase
+final class DemoTests extends TestCase
 {
     public function testReturnFalseForABC(): void
     {
